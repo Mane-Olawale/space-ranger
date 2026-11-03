@@ -1,0 +1,16 @@
+// Signing.xcconfig — code-signing identity and team (PLAN.md §2.2 identifiers, §6 Phase 5 signing steps).
+//
+// Replace TEAMID with the real Apple Developer Team ID before producing Developer ID builds. Debug builds are
+// ad-hoc signed so the project builds on any machine and on CI without certificates; Release builds use the
+// Developer ID Application identity with a secure timestamp and the hardened runtime.
+
+CODE_SIGN_STYLE = Manual
+DEVELOPMENT_TEAM = TEAMID
+
+CODE_SIGN_IDENTITY[config=Debug] = -
+CODE_SIGN_IDENTITY[config=Release] = Developer ID Application
+OTHER_CODE_SIGN_FLAGS[config=Release] = --timestamp --options runtime
+
+// Runtime requirement string used by the helper to validate its client (PLAN.md §2.9.4); kept here so the
+// team ID is defined in exactly one place.
+RECLAIM_CLIENT_REQUIREMENT = anchor apple generic and identifier "com.olawale.reclaim" and certificate leaf[subject.OU] = "$(DEVELOPMENT_TEAM)"

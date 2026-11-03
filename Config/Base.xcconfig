@@ -1,0 +1,40 @@
+// Base.xcconfig — shared build settings for every Xcode target (PLAN.md §2.2, §6 Phase 0).
+// Debug.xcconfig / Release.xcconfig include this file; Signing.xcconfig carries identity/team settings.
+
+SDKROOT = macosx
+MACOSX_DEPLOYMENT_TARGET = 14.0
+SUPPORTED_PLATFORMS = macosx
+ARCHS = $(ARCHS_STANDARD)
+
+// Swift 6 language mode with complete strict concurrency on every target (PLAN.md §2.1 principle 5).
+SWIFT_VERSION = 6.0
+SWIFT_STRICT_CONCURRENCY = complete
+SWIFT_EMIT_LOC_STRINGS = YES
+SWIFT_ENABLE_BARE_SLASH_REGEX = YES
+
+// Hardened runtime, no sandbox (ADR-001; PLAN.md §5 Phase 5 entitlements).
+ENABLE_HARDENED_RUNTIME = YES
+ENABLE_APP_SANDBOX = NO
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+
+// Versioning (MARKETING_VERSION is the product version shown to users).
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+VERSIONING_SYSTEM = apple-generic
+
+// Warnings and hygiene.
+CLANG_ENABLE_MODULES = YES
+CLANG_ENABLE_OBJC_ARC = YES
+GCC_TREAT_WARNINGS_AS_ERRORS = YES
+CLANG_WARN_DOCUMENTATION_COMMENTS = YES
+CLANG_ANALYZER_NONNULL = YES
+CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE
+ALWAYS_SEARCH_USER_PATHS = NO
+ENABLE_STRICT_OBJC_MSGSEND = YES
+DEAD_CODE_STRIPPING = YES
+LOCALIZATION_PREFERS_STRING_CATALOGS = YES
+ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES
+
+// Info.plist is generated from build settings (PLAN.md Phase 5 lists the keys).
+GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_KEY_NSHumanReadableCopyright = © 2026 Olawale Ilesanmi. All rights reserved.

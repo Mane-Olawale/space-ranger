@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	com.olawale.reclaim.helper (LaunchDaemon) entitlements (PLAN.md §6 Phase 5): hardened runtime, no extra
+	entitlements. Its authority comes from running as root under launchd and is bounded by HelperAllowlist.
+	-->
+	<key>com.apple.security.app-sandbox</key>
+	<false/>
+</dict>
+</plist>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Apps/Reclaim/Reclaim.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/ReclaimKit">
+   </FileRef>
+   <FileRef
+      location = "group:PLAN.md">
+   </FileRef>
+</Workspace>
