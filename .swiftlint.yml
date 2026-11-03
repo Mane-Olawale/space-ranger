@@ -39,6 +39,9 @@ disabled_rules:
   - todo
   - trailing_comma
   - opening_brace          # SwiftFormat owns brace placement
+  # Directory entry names are raw bytes that are not guaranteed to be UTF-8; the non-failable
+  # String(decoding:as:) is intentional so no entry is ever skipped (REQ-ENUM-1).
+  - optional_data_string_conversion
 
 line_length:
   warning: 140
