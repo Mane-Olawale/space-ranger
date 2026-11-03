@@ -60,9 +60,9 @@ struct ParityTests {
     }
 
     private func check(_ entry: BulkEntry, _ st: stat, at path: String, mismatches: inout [String]) {
-        let where_ = path + "/" + entry.nameText
+        let location = path + "/" + entry.nameText
         func fail(_ field: String, _ got: UInt64, _ want: UInt64) {
-            if mismatches.count < 20 { mismatches.append("\(where_) \(field) bulk=\(got) stat=\(want)") }
+            if mismatches.count < 20 { mismatches.append("\(location) \(field) bulk=\(got) stat=\(want)") }
         }
         let kind = st.st_mode & S_IFMT
         let expectedType: UInt32
@@ -100,7 +100,7 @@ private func mixedFixture(files: Int, directories: Int) throws -> Fixture {
     ]
     children.reserveCapacity(files + directories + 2)
     for index in 0..<files {
-        children.append(.file(name: "f\(index)", logicalBytes: index % 5 == 0 ? 128 : 0))
+        children.append(.file(name: "f\(index)", logicalBytes: index.isMultiple(of: 5) ? 128 : 0))
     }
     for index in 0..<directories {
         children.append(.dir(name: "d\(index)", children: [.file(name: "inner", logicalBytes: 16)]))

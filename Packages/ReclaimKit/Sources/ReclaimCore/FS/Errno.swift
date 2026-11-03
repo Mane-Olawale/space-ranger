@@ -22,8 +22,8 @@ public struct ErrnoError: Error, Sendable, Equatable, CustomStringConvertible {
     public var isPosixDenial: Bool { errno == EACCES }
 
     public var description: String {
-        let where_ = path.map { " (\($0))" } ?? ""
-        return "\(call) failed: \(String(cString: strerror(errno))) (\(errno))\(where_)"
+        let location = path.map { " (\($0))" } ?? ""
+        return "\(call) failed: \(String(cString: strerror(errno))) (\(errno))\(location)"
     }
 }
 

@@ -29,6 +29,12 @@ public enum SnapshotFormat {
     }
 }
 
+private struct ColumnPiece {
+    var name: String
+    var bytes: Data
+    var stride: Int
+}
+
 public enum SnapshotWriter {
     public static func write(_ reader: FileIndexReader, volumes: [VolumeInfo], completeness: ScanSummary.Completeness, to url: URL) throws {
         let header = SnapshotFormat.Header(
@@ -48,38 +54,45 @@ public enum SnapshotWriter {
             sections: []
         )
         let columns = reader.columns
-        let pieces: [(String, Data, Int)] = [
-            ("nameArena", Data(columns.nameArena), 1),
-            ("nameOffset", pack(columns.nameOffset), 4),
-            ("nameLength", pack(columns.nameLength), 2),
-            ("parent", pack(columns.parent), 4),
-            ("firstChild", pack(columns.firstChild), 4),
-            ("nextSibling", pack(columns.nextSibling), 4),
-            ("kind", Data(columns.kind), 1),
-            ("bsdFlags", pack(columns.bsdFlags), 4),
-            ("extFlags", Data(columns.extFlags), 1),
-            ("mode", pack(columns.mode), 2),
-            ("uid", pack(columns.uid), 4),
-            ("mtime", pack(columns.mtime), 8),
-            ("fileID", pack(columns.fileID), 8),
-            ("cloneID", pack(columns.cloneID), 8),
-            ("linkCount", pack(columns.linkCount), 2),
-            ("logical", pack(columns.logical), 8),
-            ("allocated", pack(columns.allocated), 8),
-            ("privateBytes", pack(columns.privateBytes), 8),
-            ("errno", pack(columns.errno), 2),
-            ("volumeIndex", Data(columns.volumeIndex), 1),
-            ("fsidA", pack(columns.fsidA), 4),
-            ("fsidB", pack(columns.fsidB), 4),
+        let pieces: [ColumnPiece] = [
+            ColumnPiece(name: "nameArena", bytes: Data(columns.nameArena), stride: 1),
+            ColumnPiece(name: "nameOffset", bytes: pack(columns.nameOffset), stride: 4),
+            ColumnPiece(name: "nameLength", bytes: pack(columns.nameLength), stride: 2),
+            ColumnPiece(name: "parent", bytes: pack(columns.parent), stride: 4),
+            ColumnPiece(name: "firstChild", bytes: pack(columns.firstChild), stride: 4),
+            ColumnPiece(name: "nextSibling", bytes: pack(columns.nextSibling), stride: 4),
+            ColumnPiece(name: "kind", bytes: Data(columns.kind), stride: 1),
+            ColumnPiece(name: "bsdFlags", bytes: pack(columns.bsdFlags), stride: 4),
+            ColumnPiece(name: "extFlags", bytes: Data(columns.extFlags), stride: 1),
+            ColumnPiece(name: "mode", bytes: pack(columns.mode), stride: 2),
+            ColumnPiece(name: "uid", bytes: pack(columns.uid), stride: 4),
+            ColumnPiece(name: "mtime", bytes: pack(columns.mtime), stride: 8),
+            ColumnPiece(name: "fileID", bytes: pack(columns.fileID), stride: 8),
+            ColumnPiece(name: "cloneID", bytes: pack(columns.cloneID), stride: 8),
+            ColumnPiece(name: "linkCount", bytes: pack(columns.linkCount), stride: 2),
+            ColumnPiece(name: "logical", bytes: pack(columns.logical), stride: 8),
+            ColumnPiece(name: "allocated", bytes: pack(columns.allocated), stride: 8),
+            ColumnPiece(name: "privateBytes", bytes: pack(columns.privateBytes), stride: 8),
+            ColumnPiece(name: "errno", bytes: pack(columns.errno), stride: 2),
+            ColumnPiece(name: "volumeIndex", bytes: Data(columns.volumeIndex), stride: 1),
+            ColumnPiece(name: "fsidA", bytes: pack(columns.fsidA), stride: 4),
+            ColumnPiece(name: "fsidB", bytes: pack(columns.fsidB), stride: 4),
         ]
         var body = Data()
         var sections: [SnapshotFormat.Section] = []
-        for (name, data, stride) in pieces {
+        for piece in pieces {
             let aligned = (body.count + 7) & ~7
             if aligned > body.count { body.append(Data(count: aligned - body.count)) }
             let offset = UInt64(SnapshotFormat.headerBytes + body.count)
-            sections.append(SnapshotFormat.Section(name: name, offset: offset, length: UInt64(data.count), stride: UInt64(stride)))
-            body.append(data)
+            sections.append(
+                SnapshotFormat.Section(
+                    name: piece.name,
+                    offset: offset,
+                    length: UInt64(piece.bytes.count),
+                    stride: UInt64(piece.stride)
+                )
+            )
+            body.append(piece.bytes)
         }
         var encoded = header
         encoded.sections = sections
@@ -165,7 +178,7 @@ public enum SnapshotReader {
     }
 
     private static func fill(_ columns: inout IndexColumns, name: String, pointer: UnsafeRawPointer, length: Int, stride: Int) throws {
-        guard length % stride == 0 else { throw FSError.snapshot("section \(name) is not a multiple of its stride") }
+        guard length.isMultiple(of: stride) else { throw FSError.snapshot("section \(name) is not a multiple of its stride") }
         let count = length / stride
         switch name {
         case "nameArena": columns.nameArena = copyBytes(pointer, count: length)

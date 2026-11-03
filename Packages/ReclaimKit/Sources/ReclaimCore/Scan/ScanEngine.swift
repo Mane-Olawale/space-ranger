@@ -204,6 +204,13 @@ final class ScanCounters: @unchecked Sendable {
     var peakBytes: UInt64 { lock.withLock { peak } }
 }
 
+private struct ListedChild {
+    var kind: EntryKind
+    var entryCount: UInt32
+    var path: String
+    var name: Data
+}
+
 struct ScanContext: Sendable {
     let index: FileIndex
     let queue: WorkQueue
@@ -331,14 +338,16 @@ struct ScanContext: Sendable {
                 return
             }
             var batch = FastBatch(parent: item.entryID)
-            var metas: [(kind: EntryKind, entryCount: UInt32, path: String, name: Data)] = []
+            var metas: [ListedChild] = []
             do {
                 try bulk.forEach(dirfd: item.fd, expectedCount: item.entryCountHint) { attributes, name in
                     let childPath = join(item.path, name)
                     var fast = makeItem(attributes, parent: item)
                     let decision = classify(attributes, path: childPath, excludes: excludes, item: &fast)
                     batch.add(name: name, item: fast)
-                    metas.append((decision, attributes.entryCount, childPath, Data(name)))
+                    metas.append(
+                        ListedChild(kind: decision, entryCount: attributes.entryCount, path: childPath, name: Data(name))
+                    )
                 }
             } catch {
                 if BulkAttrEnumerator.isUnsupported(error) {
@@ -428,7 +437,7 @@ struct ScanContext: Sendable {
         var stack: [EntryID] = [item.entryID]
         try fts.forEach(path: item.path, shouldSkip: { node in
             node.isMountBoundary || options.isExcluded(node.path, excludes: options.excludes)
-        }) { node in
+        }, { node in
             if node.level == 0 { return }
             while stack.count > node.level { stack.removeLast() }
             let parent = stack.last ?? item.entryID
@@ -460,7 +469,7 @@ struct ScanContext: Sendable {
                     stack.append(id)
                 }
             }
-        }
+        })
     }
 
     private func makeItem(_ attributes: ParsedAttributes, parent: DirWork) -> FastItem {

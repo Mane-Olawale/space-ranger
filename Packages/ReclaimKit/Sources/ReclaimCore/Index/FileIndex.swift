@@ -213,7 +213,7 @@ public actor FileIndex {
         storage = IndexStorage()
     }
 
-    public nonisolated func append(_ batch: EntryBatch) -> Range<EntryID> {
+    nonisolated public func append(_ batch: EntryBatch) -> Range<EntryID> {
         storage.append(batch)
     }
 
