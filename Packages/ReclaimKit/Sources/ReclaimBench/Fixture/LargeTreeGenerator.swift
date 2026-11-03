@@ -88,7 +88,9 @@ struct LargeTreeGenerator: Sendable {
         for j in 0..<leaves(under: i) {
             let leafName = "s\(j)"
             let leafPath = topPath + "/" + leafName
-            guard mkdirat(topFD, leafName, 0o755) == 0 else { throw FixtureGeneratorError.posix(call: "mkdirat", path: leafPath, errno: errno) }
+            guard mkdirat(topFD, leafName, 0o755) == 0 else {
+                throw FixtureGeneratorError.posix(call: "mkdirat", path: leafPath, errno: errno)
+            }
             let leafFD = openat(topFD, leafName, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
             guard leafFD >= 0 else { throw FixtureGeneratorError.posix(call: "openat", path: leafPath, errno: errno) }
             do {

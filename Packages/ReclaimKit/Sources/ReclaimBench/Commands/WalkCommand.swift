@@ -85,8 +85,9 @@ struct WalkCommand: AsyncParsableCommand {
                                         warmupSeconds: warmupSeconds, runs: runs)
             results.append(result)
             if !json {
+                let stats = result.median.stats
                 print("  median \(Output.seconds(result.median.wallSeconds)), best \(Output.seconds(result.best.wallSeconds)); "
-                    + "\(Output.bytes(result.median.stats.bytesAllocated)) allocated, \(Output.bytes(result.median.stats.bytesLogical)) logical")
+                    + "\(Output.bytes(stats.bytesAllocated)) allocated, \(Output.bytes(stats.bytesLogical)) logical")
             }
         }
         if json {

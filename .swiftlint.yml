@@ -57,17 +57,24 @@ type_body_length:
   warning: 400
   error: 600
 
+# Attribute-record parsers, fts dispatch loops and the fixture materialiser are switch-heavy by nature;
+# thresholds are set so they must still be justified, not so they always trip.
 function_body_length:
-  warning: 80
-  error: 120
+  warning: 100
+  error: 140
+
+function_parameter_count:
+  warning: 8
+  error: 10
 
 file_length:
   warning: 600
   error: 900
 
 cyclomatic_complexity:
-  warning: 15
-  error: 25
+  warning: 25
+  error: 35
+  ignores_case_statements: true
 
 nesting:
   type_level: 3
