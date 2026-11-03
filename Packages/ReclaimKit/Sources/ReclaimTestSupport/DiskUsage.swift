@@ -40,7 +40,7 @@ public struct DiskUsage: Sendable, Equatable {
                 break
             }
             let info = Int32(entry.pointee.fts_info)
-            if info == FTS_DP { continue }                 // post-order directory visit
+            if info == FTS_DP { continue } // post-order directory visit
             let isRoot = entry.pointee.fts_level == 0
             if !isRoot { usage.entryCount += 1 }
 

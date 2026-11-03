@@ -22,18 +22,16 @@ struct FileManagerWalk: WalkStrategy {
         let errorCount = OSAllocatedUnfairLock(initialState: 0)
         let rootURL = URL(fileURLWithPath: root, isDirectory: true)
         var isDirectory: ObjCBool = false
-        guard FileManager.default.fileExists(atPath: root, isDirectory: &isDirectory), isDirectory.boolValue else {
-            throw WalkError.notADirectory(root)
-        }
-        guard let enumerator = FileManager.default.enumerator(
-            at: rootURL,
-            includingPropertiesForKeys: Array(Self.keys),
-            options: [],
-            errorHandler: { _, _ in
-                errorCount.withLock { $0 += 1 }
-                return true
-            }
-        ) else {
+        guard FileManager.default.fileExists(atPath: root, isDirectory: &isDirectory), isDirectory.boolValue,
+              let enumerator = FileManager.default.enumerator(
+                  at: rootURL,
+                  includingPropertiesForKeys: Array(Self.keys),
+                  options: [],
+                  errorHandler: { _, _ in
+                      errorCount.withLock { $0 += 1 }
+                      return true
+                  }
+              ) else {
             throw WalkError.notADirectory(root)
         }
 

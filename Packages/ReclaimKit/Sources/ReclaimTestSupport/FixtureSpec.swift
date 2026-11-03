@@ -11,8 +11,14 @@ public struct FixtureSpec: Sendable {
         /// set, the file is `ftruncate`d to `logicalBytes` and only `allocatedBytes` bytes are written at the
         /// head (a sparse file). `mode` and `flags` (`UF_IMMUTABLE`, `UF_HIDDEN`, …) are applied after the data
         /// is written and `mtimeDaysAgo` is applied before `flags` so immutable files keep their timestamp.
-        case file(name: String, logicalBytes: Int, allocatedBytes: Int? = nil, mtimeDaysAgo: Int = 0,
-                  mode: mode_t = 0o644, flags: UInt32 = 0)
+        case file(
+            name: String,
+            logicalBytes: Int,
+            allocatedBytes: Int? = nil,
+            mtimeDaysAgo: Int = 0,
+            mode: mode_t = 0o644,
+            flags: UInt32 = 0
+        )
         /// `ftruncate(logicalBytes)` followed by writing `writtenBytes` at offset 0. APFS only keeps holes of
         /// ≥ 16 MiB, so use `logicalBytes - writtenBytes ≥ 16 MiB` (and page-aligned sizes) to get a genuinely
         /// sparse file — see `ExpectedSizes.sparseAllocation(logical:written:blockSize:pageSize:)`.

@@ -3,13 +3,13 @@
 
 import Testing
 
-public extension Tag {
+extension Tag {
     /// Needs a real APFS volume (sparse files, clones, private sizes). All fixture tests carry this tag.
-    @Tag static var requiresAPFS: Tag
+    @Tag public static var requiresAPFS: Tag
     /// Needs root (privileged helper, `purge`, snapshot deletion); never runs on CI.
-    @Tag static var requiresAdmin: Tag
+    @Tag public static var requiresAdmin: Tag
     /// Needs `hdiutil attach` of a disk image inside the fixture tree (mount-boundary tests).
-    @Tag static var requiresAPFSMount: Tag
+    @Tag public static var requiresAPFSMount: Tag
     /// Needs a reachable Docker daemon.
-    @Tag static var requiresDocker: Tag
+    @Tag public static var requiresDocker: Tag
 }

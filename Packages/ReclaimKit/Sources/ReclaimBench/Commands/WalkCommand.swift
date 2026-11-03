@@ -38,8 +38,11 @@ struct WalkCommand: AsyncParsableCommand {
     @Option(name: .long, help: "Attribute set requested by the bulk strategy: minimal, standard or full (PLAN.md §2.6.2).")
     var attrs: BulkAttributeSet = .full
 
-    @Flag(name: .long, inversion: .prefixedNo,
-          help: "Bulk strategy: stop reading a directory once ATTR_DIR_ENTRYCOUNT entries were returned (skips the final empty call).")
+    @Flag(
+        name: .long,
+        inversion: .prefixedNo,
+        help: "Bulk strategy: stop reading a directory once ATTR_DIR_ENTRYCOUNT entries were returned (skips the final empty call)."
+    )
     var trustEntryCount = true
 
     @Flag(name: .long, help: "Emit a JSON report instead of text.")
@@ -81,8 +84,13 @@ struct WalkCommand: AsyncParsableCommand {
                         + (measurement.stats.errors > 0 ? "  errors \(measurement.stats.errors)" : ""))
                 }
             }
-            let result = StrategyResult(strategy: walker.name, workers: walker.workers, attributeSet: walker.attributeSet,
-                                        warmupSeconds: warmupSeconds, runs: runs)
+            let result = StrategyResult(
+                strategy: walker.name,
+                workers: walker.workers,
+                attributeSet: walker.attributeSet,
+                warmupSeconds: warmupSeconds,
+                runs: runs
+            )
             results.append(result)
             if !json {
                 let stats = result.median.stats
@@ -99,7 +107,7 @@ struct WalkCommand: AsyncParsableCommand {
                 warmup: warmup,
                 results: results
             )
-            print(try Output.json(report))
+            try print(Output.json(report))
         }
     }
 

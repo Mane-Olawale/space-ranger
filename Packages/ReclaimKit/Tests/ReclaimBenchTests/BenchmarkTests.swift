@@ -70,7 +70,7 @@ final class BenchmarkTests: XCTestCase {
     private static let environment = ProcessInfo.processInfo.environment
     private static let fullScale = environment["RECLAIM_BENCH_FULL"] == "1"
     private static let enforcePlan = environment["RECLAIM_BENCH_ENFORCE_PLAN"] == "1"
-    private static let directories = fullScale ? 200_000 : 20_000
+    private static let directories = fullScale ? 200_000 : 20000
     private static let files = fullScale ? 2_000_000 : 200_000
 
     func testT0Bench2M() throws {
@@ -124,13 +124,19 @@ final class BenchmarkTests: XCTestCase {
         """
         print(summary)
 
-        assertPlanThreshold(ftsRatio >= PlanThreshold.bulkVsFTS,
-                            "bulk must be ≥ \(PlanThreshold.bulkVsFTS)× faster than fts; measured \(fmt(ftsRatio))×")
-        assertPlanThreshold(fileManagerRatio >= PlanThreshold.bulkVsFileManager,
-                            "bulk must be ≥ \(PlanThreshold.bulkVsFileManager)× faster than filemanager; measured \(fmt(fileManagerRatio))×")
+        assertPlanThreshold(
+            ftsRatio >= PlanThreshold.bulkVsFTS,
+            "bulk must be ≥ \(PlanThreshold.bulkVsFTS)× faster than fts; measured \(fmt(ftsRatio))×"
+        )
+        assertPlanThreshold(
+            fileManagerRatio >= PlanThreshold.bulkVsFileManager,
+            "bulk must be ≥ \(PlanThreshold.bulkVsFileManager)× faster than filemanager; measured \(fmt(fileManagerRatio))×"
+        )
         if Self.fullScale {
-            assertPlanThreshold(bulk.median.wallSeconds <= PlanThreshold.bulkMaxSeconds,
-                                "bulk must finish the 2 M fixture in ≤ \(PlanThreshold.bulkMaxSeconds) s; measured \(fmt(bulk.median.wallSeconds)) s")
+            assertPlanThreshold(
+                bulk.median.wallSeconds <= PlanThreshold.bulkMaxSeconds,
+                "bulk must finish the 2 M fixture in ≤ \(PlanThreshold.bulkMaxSeconds) s; measured \(fmt(bulk.median.wallSeconds)) s"
+            )
         }
 
         if let outputPath = Self.environment["RECLAIM_BENCH_SUMMARY"] {
@@ -141,16 +147,22 @@ final class BenchmarkTests: XCTestCase {
     // MARK: - Helpers
 
     /// Hard assertion when RECLAIM_BENCH_ENFORCE_PLAN=1; otherwise a documented expected failure (ADR-014).
-    private func assertPlanThreshold(_ condition: @autoclosure () -> Bool, _ message: String,
-                                     file: StaticString = #filePath, line: UInt = #line) {
+    private func assertPlanThreshold(
+        _ condition: @autoclosure () -> Bool,
+        _ message: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         if Self.enforcePlan {
             XCTAssertTrue(condition(), message, file: file, line: line)
             return
         }
         let options = XCTExpectedFailure.Options()
         options.isStrict = false
-        XCTExpectFailure("PLAN.md T0-BENCH-2M threshold not met on this host (see docs/benchmarks/phase0.json; revise in Phase 1): \(message)",
-                         options: options) {
+        XCTExpectFailure(
+            "PLAN.md T0-BENCH-2M threshold not met on this host (see docs/benchmarks/phase0.json; revise in Phase 1): \(message)",
+            options: options
+        ) {
             XCTAssertTrue(condition(), message, file: file, line: line)
         }
     }
@@ -165,7 +177,9 @@ final class BenchmarkTests: XCTestCase {
         let productsDirectory = Bundle(for: BenchmarkTests.self).bundleURL.deletingLastPathComponent()
         let candidate = productsDirectory.appendingPathComponent("reclaim-bench").path(percentEncoded: false)
         guard access(candidate, X_OK) == 0 else {
-            throw XCTSkip("reclaim-bench not found at \(candidate); build it with `swift build --product reclaim-bench` or set RECLAIM_BENCH_BIN")
+            throw XCTSkip(
+                "reclaim-bench not found at \(candidate); build it with `swift build --product reclaim-bench` or set RECLAIM_BENCH_BIN"
+            )
         }
         return candidate
     }

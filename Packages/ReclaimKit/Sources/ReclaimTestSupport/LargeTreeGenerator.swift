@@ -92,8 +92,12 @@ enum LargeTreeGenerator {
             try FixtureFS.makeDirectory(parent: topFD, name: leafName)
             let leafFD = try FixtureFS.openDirectory(parent: topFD, name: leafName)
             do {
-                try fill(directory: leafFD, path: topPath + "/" + leafName,
-                         count: plan.files(inDirectory: leafIndex), bytesPerFile: bytesPerFile)
+                try fill(
+                    directory: leafFD,
+                    path: topPath + "/" + leafName,
+                    count: plan.files(inDirectory: leafIndex),
+                    bytesPerFile: bytesPerFile
+                )
             } catch {
                 close(leafFD)
                 throw error

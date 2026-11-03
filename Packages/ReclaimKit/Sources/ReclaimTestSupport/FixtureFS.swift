@@ -71,19 +71,19 @@ enum FixtureFS {
 
     static func openDirectory(parent: Int32, name: String) throws -> Int32 {
         let fd = openat(parent, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
-        guard fd >= 0 else { throw FixtureError.posix(call: "openat", path: try describe(parent, name), errno: errno) }
+        guard fd >= 0 else { throw posixError("openat", parent: parent, name: name) }
         return fd
     }
 
     static func makeDirectory(parent: Int32, name: String) throws {
         guard mkdirat(parent, name, 0o755) == 0 else {
-            throw FixtureError.posix(call: "mkdirat", path: try describe(parent, name), errno: errno)
+            throw posixError("mkdirat", parent: parent, name: name)
         }
     }
 
     static func createFile(parent: Int32, name: String) throws -> Int32 {
         let fd = openat(parent, name, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o644)
-        guard fd >= 0 else { throw FixtureError.posix(call: "openat(O_CREAT)", path: try describe(parent, name), errno: errno) }
+        guard fd >= 0 else { throw posixError("openat(O_CREAT)", parent: parent, name: name) }
         return fd
     }
 
@@ -138,7 +138,7 @@ enum FixtureFS {
 
     static func setModificationTime(fd: Int32, daysAgo: Int, path: String) throws {
         guard daysAgo != 0 else { return }
-        let seconds = time_t(Date().timeIntervalSince1970) - time_t(daysAgo) * 86_400
+        let seconds = time_t(Date().timeIntervalSince1970) - time_t(daysAgo) * 86400
         var times = [timespec(tv_sec: seconds, tv_nsec: 0), timespec(tv_sec: seconds, tv_nsec: 0)]
         guard futimens(fd, &times) == 0 else { throw FixtureError.posix(call: "futimens", path: path, errno: errno) }
     }
@@ -149,7 +149,7 @@ enum FixtureFS {
 
     static func setMode(parent: Int32, name: String, mode: mode_t) throws {
         guard fchmodat(parent, name, mode, AT_SYMLINK_NOFOLLOW) == 0 else {
-            throw FixtureError.posix(call: "fchmodat", path: try describe(parent, name), errno: errno)
+            throw posixError("fchmodat", parent: parent, name: name)
         }
     }
 
@@ -160,19 +160,19 @@ enum FixtureFS {
 
     static func clone(source: String, parent: Int32, name: String) throws {
         guard clonefileat(AT_FDCWD, source, parent, name, 0) == 0 else {
-            throw FixtureError.posix(call: "clonefileat", path: try describe(parent, name), errno: errno)
+            throw posixError("clonefileat", parent: parent, name: name)
         }
     }
 
     static func hardlink(source: String, parent: Int32, name: String) throws {
         guard linkat(AT_FDCWD, source, parent, name, 0) == 0 else {
-            throw FixtureError.posix(call: "linkat", path: try describe(parent, name), errno: errno)
+            throw posixError("linkat", parent: parent, name: name)
         }
     }
 
     static func symlink(target: String, parent: Int32, name: String) throws {
         guard symlinkat(target, parent, name) == 0 else {
-            throw FixtureError.posix(call: "symlinkat", path: try describe(parent, name), errno: errno)
+            throw posixError("symlinkat", parent: parent, name: name)
         }
     }
 
@@ -202,7 +202,7 @@ enum FixtureFS {
     static func stat(parent: Int32, name: String) throws -> Darwin.stat {
         var st = Darwin.stat()
         guard fstatat(parent, name, &st, AT_SYMLINK_NOFOLLOW) == 0 else {
-            throw FixtureError.posix(call: "fstatat", path: try describe(parent, name), errno: errno)
+            throw posixError("fstatat", parent: parent, name: name)
         }
         return st
     }
@@ -220,8 +220,12 @@ enum FixtureFS {
         return string(fromCString: buffer)
     }
 
-    private static func describe(_ parent: Int32, _ name: String) throws -> String {
-        ((try? path(ofDirectory: parent)) ?? "<fd \(parent)>") + "/" + name
+    /// Builds a `.posix` error for `name` under `parent`, capturing `errno` *before* resolving the directory
+    /// path (`fcntl(F_GETPATH)` could otherwise clobber it).
+    private static func posixError(_ call: String, parent: Int32, name: String) -> FixtureError {
+        let code = errno
+        let directory = (try? path(ofDirectory: parent)) ?? "<fd \(parent)>"
+        return .posix(call: call, path: directory + "/" + name, errno: code)
     }
 
     // MARK: - Removal

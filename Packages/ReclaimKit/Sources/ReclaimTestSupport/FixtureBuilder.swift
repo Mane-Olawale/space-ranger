@@ -81,7 +81,7 @@ public struct Fixture: Sendable {
     }
 }
 
-public struct FixtureBuilder {
+public enum FixtureBuilder {
     /// Default prefix of fixture temp directories under `/private/tmp`.
     public static let tempPrefix = "rcl-fixture"
 
@@ -196,16 +196,32 @@ final class Materializer {
         case let .file(name, logicalBytes, allocatedBytes, mtimeDaysAgo, mode, flags):
             try validate(name: name)
             let written = allocatedBytes.map { min($0, logicalBytes) } ?? logicalBytes
-            try createFile(name: name, in: parentFD, parentPath: parentPath, logical: logicalBytes,
-                           written: written, mtimeDaysAgo: mtimeDaysAgo, mode: mode, flags: flags)
+            try createFile(
+                name: name,
+                in: parentFD,
+                parentPath: parentPath,
+                logical: logicalBytes,
+                written: written,
+                mtimeDaysAgo: mtimeDaysAgo,
+                mode: mode,
+                flags: flags
+            )
 
         case let .sparse(name, logicalBytes, writtenBytes):
             try validate(name: name)
             guard writtenBytes <= logicalBytes else {
                 throw FixtureError.invalidSpec("sparse \(name): writtenBytes (\(writtenBytes)) > logicalBytes (\(logicalBytes))")
             }
-            try createFile(name: name, in: parentFD, parentPath: parentPath, logical: logicalBytes,
-                           written: writtenBytes, mtimeDaysAgo: 0, mode: 0o644, flags: 0)
+            try createFile(
+                name: name,
+                in: parentFD,
+                parentPath: parentPath,
+                logical: logicalBytes,
+                written: writtenBytes,
+                mtimeDaysAgo: 0,
+                mode: 0o644,
+                flags: 0
+            )
 
         case let .clone(name, of):
             try validate(name: name)
@@ -232,13 +248,13 @@ final class Materializer {
                 throw FixtureError.invalidSpec("hardlink \(name): source \(of) is not a file created by this fixture")
             }
             try FixtureFS.hardlink(source: source, parent: parentFD, name: name)
-            stateIndex[parentPath + "/" + name] = index          // same inode, no new bytes
+            stateIndex[parentPath + "/" + name] = index // same inode, no new bytes
             entryCount += 1
 
         case let .symlink(name, to):
             try validate(name: name)
             try FixtureFS.symlink(target: to, parent: parentFD, name: name)
-            logical += to.utf8.count                               // st_size of a symlink; APFS allocates 0 blocks
+            logical += to.utf8.count // st_size of a symlink; APFS allocates 0 blocks
             entryCount += 1
 
         case let .dir(name, mode, children):
@@ -280,7 +296,7 @@ final class Materializer {
             logical += Int(git.logical)
             allocated += Int(git.allocated)
             privateBytes += Int(git.privateBytes)
-            entryCount += git.entryCount + 1                     // + the `.git` directory itself
+            entryCount += git.entryCount + 1 // + the `.git` directory itself
 
         case let .nodeModules(name, packages, bytesEach):
             try validate(name: name)
@@ -302,8 +318,16 @@ final class Materializer {
         "{\"name\":\"pkg-\(index)\",\"version\":\"1.0.0\",\"main\":\"index.js\"}\n"
     }
 
-    private func createFile(name: String, in parentFD: Int32, parentPath: String, logical: Int, written: Int,
-                            mtimeDaysAgo: Int, mode: mode_t, flags: UInt32) throws {
+    private func createFile(
+        name: String,
+        in parentFD: Int32,
+        parentPath: String,
+        logical: Int,
+        written: Int,
+        mtimeDaysAgo: Int,
+        mode: mode_t,
+        flags: UInt32
+    ) throws {
         let path = parentPath + "/" + name
         let alloc = written < logical
             ? ExpectedSizes.sparseAllocation(logical: logical, written: written, blockSize: blockSize, pageSize: pageSize)

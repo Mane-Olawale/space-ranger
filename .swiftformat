@@ -10,8 +10,9 @@
 --wrapcollections before-first
 --closingparen balanced
 --trimwhitespace always
---commas inline
---semicolons never
+--commas always
+--ranges no-space
+--semicolons inline
 --linebreaks lf
 
 # Style
@@ -27,5 +28,6 @@
 --emptybraces no-space
 --header ignore
 
-# Rules we do not want
---disable wrapMultilineStatementBraces, redundantReturn, andOperator, blankLinesAtStartOfScope
+# Rules we do not want: compact single-line bodies are fine, and `attrgroup_t(x)` must not become `.init(x)`.
+--disable wrapMultilineStatementBraces, redundantReturn, andOperator, blankLinesAtStartOfScope, \
+          wrapIfStatementBodies, wrapLoopBodies, wrapPropertyBodies, wrapFunctionBodies, propertyTypes, redundantType

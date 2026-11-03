@@ -49,7 +49,7 @@ struct FixtureCommand: AsyncParsableCommand {
             try TreeRemover.remove(at: out)
             let elapsed = (clock.now - start).seconds
             if json {
-                print(try Output.json(["removed": out, "wallSeconds": String(format: "%.3f", elapsed)]))
+                try print(Output.json(["removed": out, "wallSeconds": String(format: "%.3f", elapsed)]))
             } else {
                 print("removed \(out) in \(Output.seconds(elapsed))")
             }
@@ -75,7 +75,7 @@ struct FixtureCommand: AsyncParsableCommand {
             entriesPerSecond: elapsed > 0 ? Double(entries) / elapsed : 0
         )
         if json {
-            print(try Output.json(report))
+            try print(Output.json(report))
         } else {
             print("fixture: \(out)")
             print("  directories: \(dirs)  files: \(files)  entries: \(entries)  bytes/file: \(bytesPerFile)")

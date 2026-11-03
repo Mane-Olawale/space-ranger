@@ -171,8 +171,13 @@ struct BulkWorker {
         return stats
     }
 
-    private func readDirectory(_ item: DirectoryItem, list: inout attrlist, buffer: UnsafeMutableRawBufferPointer,
-                               stats: inout WalkStats, children: inout [DirectoryItem]) {
+    private func readDirectory(
+        _ item: DirectoryItem,
+        list: inout attrlist,
+        buffer: UnsafeMutableRawBufferPointer,
+        stats: inout WalkStats,
+        children: inout [DirectoryItem]
+    ) {
         guard let base = buffer.baseAddress else { stats.errors += 1; return }
         var returned: UInt32 = 0
         while true {
@@ -240,7 +245,7 @@ struct BulkWorker {
         switch objType {
         case BulkAttributes.objTypeDirectory:
             stats.directories += 1
-            if mountStatus & UInt32(DIR_MNTSTATUS_MNTPOINT) != 0 { return }      // boundary: do not descend
+            if mountStatus & UInt32(DIR_MNTSTATUS_MNTPOINT) != 0 { return } // boundary: do not descend
             guard let name = namePointer else { stats.errors += 1; return }
             let child = openat(dirfd, name, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
             if child >= 0 { children.append(DirectoryItem(fd: child, entryCount: entryCount)) } else { stats.errors += 1 }

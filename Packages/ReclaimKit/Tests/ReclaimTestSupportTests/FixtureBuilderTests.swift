@@ -16,7 +16,7 @@ struct FixtureBuilderTests {
         .file(name: "small.bin", logicalBytes: 1),
         .file(name: "odd.bin", logicalBytes: 4097),
         .file(name: "empty.bin", logicalBytes: 0),
-        .file(name: "old.bin", logicalBytes: 10_000, mtimeDaysAgo: 120),
+        .file(name: "old.bin", logicalBytes: 10000, mtimeDaysAgo: 120),
         .file(name: "readonly.bin", logicalBytes: 100, mode: 0o444),
         .file(name: "locked.bin", logicalBytes: 100, flags: UInt32(UF_IMMUTABLE)),
         .file(name: "partial.bin", logicalBytes: 1 << 20, allocatedBytes: 64 << 10),
@@ -32,7 +32,7 @@ struct FixtureBuilderTests {
                 .dir(name: "245861544149209@lid.status", children: [
                     .file(name: "status.mp4", logicalBytes: 123_456),
                 ]),
-                .dir(name: "cafe\u{301}", children: []),   // NFD "café"
+                .dir(name: "cafe\u{301}", children: []), // NFD "café"
             ]),
         ]),
         .clone(name: "clone.bin", of: "odd.bin"),
@@ -41,7 +41,7 @@ struct FixtureBuilderTests {
         .symlink(name: "loop-b", to: "loop-a"),
         .symlink(name: "up", to: ".."),
         .socket(name: "docker.sock"),
-        .nodeModules(packages: 5, bytesEach: 10_000),
+        .nodeModules(packages: 5, bytesEach: 10000),
     ])
 
     @Test("T0-FIXTURE-SIZES: du-equivalent (fts + st_blocks) equals ExpectedSizes within one block")
@@ -55,16 +55,20 @@ struct FixtureBuilderTests {
         #expect(usage.errors == 0)
         #expect(usage.entryCount == expected.entryCount)
         #expect(usage.logical == expected.logical)
-        #expect(abs(Int64(usage.allocated) - Int64(expected.allocated)) <= Self.block,
-                "allocated: measured \(usage.allocated) vs expected \(expected.allocated)")
-        #expect(abs(Int64(usage.privateBytes) - Int64(expected.privateBytes)) <= Self.block,
-                "private: measured \(usage.privateBytes) vs expected \(expected.privateBytes)")
+        #expect(
+            abs(Int64(usage.allocated) - Int64(expected.allocated)) <= Self.block,
+            "allocated: measured \(usage.allocated) vs expected \(expected.allocated)"
+        )
+        #expect(
+            abs(Int64(usage.privateBytes) - Int64(expected.privateBytes)) <= Self.block,
+            "private: measured \(usage.privateBytes) vs expected \(expected.privateBytes)"
+        )
 
         // Structural counts: Message, Media, 3 JID dirs, node_modules + 5 packages = 11 directories.
         #expect(usage.directories == 11)
         #expect(usage.symlinks == 3)
-        #expect(usage.others == 1)                       // the socket
-        #expect(usage.files == 12 + 3 + 10)              // root files (incl. clone + hard link) + media + package files
+        #expect(usage.others == 1) // the socket
+        #expect(usage.files == 12 + 3 + 10) // root files (incl. clone + hard link) + media + package files
     }
 
     @Test("T0-FIXTURE-SIZES: sparse fixture allocates ≤ written + one VM page and is flagged EF_IS_SPARSE")
@@ -114,11 +118,18 @@ struct FixtureBuilderTests {
         for testCase in cases {
             let st = try FixtureFS.stat(path: fixture.path + "/" + testCase.name)
             let measured = Int64(st.st_blocks) * 512
-            let predicted = ExpectedSizes.sparseAllocation(logical: testCase.logical, written: testCase.written,
-                                                           blockSize: block, pageSize: page)
+            let predicted = ExpectedSizes.sparseAllocation(
+                logical: testCase.logical,
+                written: testCase.written,
+                blockSize: block,
+                pageSize: page
+            )
             #expect(measured == Int64(predicted), "\(testCase.name): st_blocks*512 \(measured) vs predicted \(predicted)")
             let full = ExpectedSizes.fullAllocation(logical: testCase.logical, blockSize: block)
-            #expect((measured < Int64(full)) == testCase.expectSparse, "\(testCase.name): sparse=\(measured < Int64(full)) expected \(testCase.expectSparse)")
+            #expect(
+                (measured < Int64(full)) == testCase.expectSparse,
+                "\(testCase.name): sparse=\(measured < Int64(full)) expected \(testCase.expectSparse)"
+            )
             if testCase.expectSparse {
                 #expect(measured <= Int64(testCase.written + page), "\(testCase.name): allocated ≤ written + one page")
             }
@@ -139,7 +150,7 @@ struct FixtureBuilderTests {
         let original = try FileAttributes.read(atPath: fixture.path + "/original.bin")
         let copy = try FileAttributes.read(atPath: fixture.path + "/copy.bin")
 
-        #expect(copy.privateSize == 0)                               // PLAN.md T0-FIXTURE-SIZES
+        #expect(copy.privateSize == 0) // PLAN.md T0-FIXTURE-SIZES
         #expect(copy.allocatedSize == UInt64(size))
         #expect(original.allocatedSize == UInt64(size))
         #expect(copy.sharesAllBlocks && copy.mayShareBlocks)
@@ -149,7 +160,7 @@ struct FixtureBuilderTests {
         #expect(original.privateSize + copy.privateSize <= UInt64(size))
 
         let usage = try DiskUsage.measure(at: fixture.path)
-        #expect(usage.allocated == UInt64(2 * size))                 // du counts both clones
+        #expect(usage.allocated == UInt64(2 * size)) // du counts both clones
         #expect(usage.privateBytes == fixture.expected.privateBytes)
         #expect(fixture.expected.privateBytes == original.privateSize + copy.privateSize)
     }
@@ -247,8 +258,8 @@ struct FixtureBuilderTests {
         #expect(access(fixture.path + "/Downloads/installer.dmg", F_OK) == 0)
         let usage = try DiskUsage.measure(at: fixture.path)
         #expect(usage.entryCount == 6)
-        #expect(usage == DiskUsage(logical: 12_000, allocated: 16_384, privateBytes: 16_384, entryCount: 6, directories: 4, files: 2))
-        #expect(fixture.expected == ExpectedSizes(logical: 12_000, allocated: 16_384, privateBytes: 16_384, entryCount: 6))
+        #expect(usage == DiskUsage(logical: 12000, allocated: 16384, privateBytes: 16384, entryCount: 6, directories: 4, files: 2))
+        #expect(fixture.expected == ExpectedSizes(logical: 12000, allocated: 16384, privateBytes: 16384, entryCount: 6))
     }
 
     @Test("largeTree: exact directory/file counts and sizes at small scale")
@@ -287,7 +298,7 @@ struct FixtureBuilderTests {
 
         let locked = try FixtureFS.stat(path: path + "/locked.bin")
         #expect(locked.st_flags & UInt32(UF_IMMUTABLE) != 0)
-        let unlinkResult = unlink(path + "/locked.bin")  // proves the flag is in force before cleanup
+        let unlinkResult = unlink(path + "/locked.bin") // proves the flag is in force before cleanup
         let unlinkErrno = errno
         #expect(unlinkResult != 0 && unlinkErrno == EPERM)
 
@@ -333,11 +344,10 @@ struct FixtureBuilderTests {
         process.waitUntilExit()
         return String(decoding: data, as: UTF8.self)
     }
-
 }
 
-private extension DiskUsage {
-    init(logical: UInt64, allocated: UInt64, privateBytes: UInt64, entryCount: Int, directories: Int, files: Int) {
+extension DiskUsage {
+    fileprivate init(logical: UInt64, allocated: UInt64, privateBytes: UInt64, entryCount: Int, directories: Int, files: Int) {
         self.init()
         self.logical = logical
         self.allocated = allocated

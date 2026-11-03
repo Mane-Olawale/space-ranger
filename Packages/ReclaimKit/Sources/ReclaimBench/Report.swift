@@ -143,10 +143,10 @@ struct FixtureReport: Codable, Sendable {
 }
 
 enum Output {
-    static func json<T: Encodable>(_ value: T) throws -> String {
+    static func json(_ value: some Encodable) throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        return String(decoding: try encoder.encode(value), as: UTF8.self)
+        return try String(decoding: encoder.encode(value), as: UTF8.self)
     }
 
     static func timestamp() -> String {
