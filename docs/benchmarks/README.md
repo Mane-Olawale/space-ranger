@@ -65,3 +65,13 @@ three PLAN.md thresholds are met on the CI runner class. On this quiet 3-core VM
 
 Re-run with `Scripts/bench.sh` (full scale, ~30 min including fixture generation and removal) or
 `RECLAIM_BENCH_FULL=1 swift test -c release --filter BenchmarkTests` for the assertion form.
+
+## Phase 1 (2026-11-03, same M3 Pro, load ~4, `--repeat 1`)
+
+`docs/benchmarks/phase1.json`, ADR-016 thresholds. The `bulk` walk at 11 workers was **13.2 s**
+(7.5× `fts`, **8.4× `FileManager`** — the 5× bar is met, the 6.0 s bar is not). `reclaim scan` of the same
+fixture: **13.8 s**, 2 200 001 entries, peak footprint **860 MB** (the ≤ 300 MB index budget is not met;
+the columns are ~95 B/entry and the allocator's high-water mark is several times that).
+
+Profile before the engine was written: `docs/benchmarks/phase1-profile.md`. The walk is inside
+`getattrlistbulk` / `openat`; user CPU for two passes was 0.46 s.
