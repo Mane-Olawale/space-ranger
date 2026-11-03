@@ -173,16 +173,17 @@ struct BulkWorker {
 
     private func readDirectory(_ item: DirectoryItem, list: inout attrlist, buffer: UnsafeMutableRawBufferPointer,
                                stats: inout WalkStats, children: inout [DirectoryItem]) {
+        guard let base = buffer.baseAddress else { stats.errors += 1; return }
         var returned: UInt32 = 0
         while true {
-            let count = getattrlistbulk(item.fd, &list, buffer.baseAddress, buffer.count, BulkAttributes.options)
+            let count = getattrlistbulk(item.fd, &list, base, buffer.count, BulkAttributes.options)
             if count == 0 { return }
             if count < 0 {
                 if errno == EINTR { continue }
                 stats.errors += 1
                 return
             }
-            var record = UnsafeRawPointer(buffer.baseAddress!)
+            var record = UnsafeRawPointer(base)
             for _ in 0..<Int(count) {
                 let length = Int(record.loadUnaligned(as: UInt32.self))
                 parse(record: record, dirfd: item.fd, stats: &stats, children: &children)

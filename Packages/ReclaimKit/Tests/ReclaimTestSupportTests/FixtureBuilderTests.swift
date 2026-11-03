@@ -86,19 +86,26 @@ struct FixtureBuilderTests {
         #expect(fixture.expected.logical == UInt64(logical))
     }
 
+    private struct SparseCase {
+        let name: String
+        let logical: Int
+        let written: Int
+        let expectSparse: Bool
+    }
+
     @Test("T0-FIXTURE-SIZES: sparse heads follow the APFS page/16 MiB-hole allocation model")
     func sparseHeadModel() throws {
         let page = FixtureBuilder.pageSize
         let block = try FixtureBuilder.blockSize()
-        let cases: [(name: String, logical: Int, written: Int, expectSparse: Bool)] = [
-            ("one-byte", 64 << 20, 1, true),
-            ("three-blocks", 64 << 20, 3 * block, true),
-            ("page-plus-one", 64 << 20, page + 1, true),
-            ("hole-exactly-16MiB", 32 << 20, 16 << 20, true),
-            ("hole-just-under-16MiB", 32 << 20, (16 << 20) + block, false),
-            ("tiny-logical", 5000, block, false),
-            ("small-partial", 1 << 20, 10 * block, false),
-            ("unaligned-tail", (40 << 20) + 4096, 4096, true),
+        let cases = [
+            SparseCase(name: "one-byte", logical: 64 << 20, written: 1, expectSparse: true),
+            SparseCase(name: "three-blocks", logical: 64 << 20, written: 3 * block, expectSparse: true),
+            SparseCase(name: "page-plus-one", logical: 64 << 20, written: page + 1, expectSparse: true),
+            SparseCase(name: "hole-exactly-16MiB", logical: 32 << 20, written: 16 << 20, expectSparse: true),
+            SparseCase(name: "hole-just-under-16MiB", logical: 32 << 20, written: (16 << 20) + block, expectSparse: false),
+            SparseCase(name: "tiny-logical", logical: 5000, written: block, expectSparse: false),
+            SparseCase(name: "small-partial", logical: 1 << 20, written: 10 * block, expectSparse: false),
+            SparseCase(name: "unaligned-tail", logical: (40 << 20) + 4096, written: 4096, expectSparse: true),
         ]
         let spec = FixtureSpec(root: cases.map { .sparse(name: $0.name, logicalBytes: $0.logical, writtenBytes: $0.written) })
         let fixture = try FixtureBuilder.make(spec)
@@ -107,7 +114,8 @@ struct FixtureBuilderTests {
         for testCase in cases {
             let st = try FixtureFS.stat(path: fixture.path + "/" + testCase.name)
             let measured = Int64(st.st_blocks) * 512
-            let predicted = ExpectedSizes.sparseAllocation(logical: testCase.logical, written: testCase.written, blockSize: block, pageSize: page)
+            let predicted = ExpectedSizes.sparseAllocation(logical: testCase.logical, written: testCase.written,
+                                                           blockSize: block, pageSize: page)
             #expect(measured == Int64(predicted), "\(testCase.name): st_blocks*512 \(measured) vs predicted \(predicted)")
             let full = ExpectedSizes.fullAllocation(logical: testCase.logical, blockSize: block)
             #expect((measured < Int64(full)) == testCase.expectSparse, "\(testCase.name): sparse=\(measured < Int64(full)) expected \(testCase.expectSparse)")
