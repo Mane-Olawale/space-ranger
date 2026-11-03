@@ -35,7 +35,7 @@ Reclaim productizes exactly that workflow: a **sub-10-second whole-disk scan**, 
 
 | ID | Goal | Measurable target |
 |----|------|-------------------|
-| G1 | Fast full scan | ≤ 10 s cold / ≤ 3 s warm for 2,000,000 entries on Apple-silicon NVMe (benchmarked in Phase 0 on a generated fixture; validated on the author's machine, ~3–5 M entries, ≤ 25 s cold). |
+| G1 | Fast full scan | ≤ 10 s cold / ≤ 6 s warm for 2,000,000 entries on the author's M3 Pro (stretch 3 s); ≤ 15 s on the macos-15 CI runner. Peak RSS ≤ 300 MB for that fixture. Benchmarked in Phase 0–1; validated on the author's machine (~3–5 M entries, ≤ 25 s cold). See ADR-016. |
 | G2 | Honest accounting | Reported "reclaimable" bytes = bytes actually returned by `statfs` after deletion, within ±2% for non-cloned data; sparse/clone/purgeable/hard-link cases never overstate savings. |
 | G3 | Zero data-loss incidents | Protected-path blocklist, O_NOFOLLOW traversal, identity (dev/inode) re-verification, Trash-first tier, full rollback ledger. |
 | G4 | Explainability | Every finding carries a human rationale and a regeneration statement ("recreated on next build"). |
@@ -733,7 +733,7 @@ SQLite (`ledger.sqlite`, `PRAGMA journal_mode=WAL; foreign_keys=ON; synchronous=
 
 | Scenario | Budget | Measured in |
 |----------|--------|-------------|
-| Fixture 2 M entries / 200 k dirs, warm cache | ≤ 3.0 s scan, ≤ 300 MB peak RSS | Phase 0 benchmark `reclaim-bench scan --fixture 2m` |
+| Fixture 2 M entries / 200 k dirs, warm cache | ≤ 6.0 s scan on the author's M3 Pro (stretch 3.0 s), ≤ 15 s on the macos-15 CI runner, ≤ 300 MB peak RSS; `bulk` ≥ 5× `FileManager` | Phase 1 `T1-BENCH-2M` (ADR-016). Phase 0's 3.0 s / 10× figures are historical. |
 | Same, cold (after `purge` run by CI script, requires admin → local only) | ≤ 10 s | local |
 | Author's machine full Data volume (~3–5 M entries) | ≤ 25 s cold, ≤ 8 s warm | local |
 | Snapshot load (3 M entries) | ≤ 1.0 s | T1-SNAP-LOAD |
@@ -1594,7 +1594,7 @@ public struct VolumeStats: Sendable {
 | T1-SCAN-CANCEL | 2 M fixture | cancel after 500 ms → `.finished(summary.completeness == .partial)` within 200 ms; no leaked fds (`proc_pidinfo PROC_PIDLISTFDS` count returns to baseline). |
 | T1-SNAP-ROUNDTRIP | 2 M fixture | write + mmap read → identical arrays; load ≤ 1.0 s. |
 | T1-INDEX-SORT | dir with 200 k children | `children(sortedBy: .allocated, page: 0..<200)` ≤ 50 ms. |
-| T1-BENCH-2M | 2 M fixture | ≤ 3.0 s warm, ≤ 300 MB peak RSS (recorded). |
+| T1-BENCH-2M | 2 M fixture | ≤ 6.0 s warm on the author's M3 Pro, ≤ 15 s on the macos-15 CI runner (stretch 3 s), ≤ 300 MB peak RSS; `bulk` ≥ 5× `FileManager` (ADR-016). |
 | T1-FDLIMIT | 50 k nested dirs depth 300 | no `EMFILE`; open fd count ≤ 2,048 at any time. |
 
 ### Phase 2 — Safety layer, deletion engine, ledger, dry-run CLI (2–3 weeks)
