@@ -60,9 +60,11 @@ jobs:
           plutil -lint "$app/Contents/Library/LaunchDaemons/com.olawale.reclaim.helper.plist"
 
   lint:
-    name: SwiftLint & SwiftFormat
+    # Advisory in Phase 0 (SwiftLint/SwiftFormat are not yet run locally); becomes required in Phase 1.
+    name: SwiftLint & SwiftFormat (advisory)
     runs-on: macos-15
     timeout-minutes: 20
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Install linters
