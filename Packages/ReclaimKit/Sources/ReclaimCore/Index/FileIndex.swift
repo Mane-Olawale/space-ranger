@@ -41,6 +41,7 @@ struct IndexColumns {
     }
 
     mutating func reserve(_ count: Int) {
+        nameArena.reserveCapacity(count * 16)
         nameOffset.reserveCapacity(count)
         nameLength.reserveCapacity(count)
         parent.reserveCapacity(count)

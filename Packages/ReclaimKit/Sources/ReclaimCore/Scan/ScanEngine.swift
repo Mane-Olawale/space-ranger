@@ -307,7 +307,7 @@ struct ScanContext: Sendable {
                 }
                 return
             }
-            try read(&item, bulk: bulk, excludes: excludes)
+            try read(&item, bulk: bulk, excludes: excludes, accounted: true)
         }
     }
 
@@ -317,12 +317,17 @@ struct ScanContext: Sendable {
         return false
     }
 
-    private func read(_ item: inout DirWork, bulk: BulkAttrEnumerator, excludes: [String]) throws {
+    private func read(
+        _ item: inout DirWork,
+        bulk: BulkAttrEnumerator,
+        excludes: [String],
+        accounted: Bool
+    ) throws {
         if item.pending == nil {
             if options.forceFTS || DirectoryEnumeratorFactory.needsFTS(fsType: fsType(device: item.device), forceFTS: false) {
                 try ingestFTS(item)
                 Darwin.close(item.fd)
-                queue.finishedClosingFD()
+                if accounted { queue.finishedClosingFD() }
                 return
             }
             var batch = FastBatch(parent: item.entryID)
@@ -339,15 +344,16 @@ struct ScanContext: Sendable {
                 if BulkAttrEnumerator.isUnsupported(error) {
                     try ingestFTS(item)
                     Darwin.close(item.fd)
-                    queue.finishedClosingFD()
+                    if accounted { queue.finishedClosingFD() }
                     return
                 }
-                if let fs = error as? FSError, fs.isPosixDenial || fs.isPolicyDenial {
-                    index.update(id: item.entryID, kind: .unreadable, errno: fs.errno)
+                if let fs = error as? FSError, let code = fs.errno {
+                    // One directory timing out or returning EIO must not abort the rest of the volume.
+                    index.update(id: item.entryID, kind: .unreadable, errno: code)
                     counters.add(kind: .unreadable, allocated: 0)
-                    continuation.yield(.unreadable(path: item.path, errno: fs.errno ?? EACCES))
+                    continuation.yield(.unreadable(path: item.path, errno: code))
                     Darwin.close(item.fd)
-                    queue.finishedClosingFD()
+                    if accounted { queue.finishedClosingFD() }
                     return
                 }
                 throw error
@@ -379,16 +385,15 @@ struct ScanContext: Sendable {
         }
         guard var pending = item.pending else {
             Darwin.close(item.fd)
-            queue.finishedClosingFD()
+            if accounted { queue.finishedClosingFD() }
             return
         }
         while !pending.isEmpty {
             if Task.isCancelled { break }
-            if queue.openFileDescriptors >= DirectoryOpen.schedulerCap {
-                item.pending = pending
-                queue.defer_(item)
-                return
-            }
+            // Once the queue is near the cap, finish the remaining children on this worker.
+            // Pushing them would spin: every worker re-defers the same wide directory (Data volume).
+            // Inline descent holds O(depth) extra fds, so the cap stays under 2 048.
+            let inline = queue.openFileDescriptors >= DirectoryOpen.schedulerCap - 64
             let sub = pending.removeFirst()
             let fd = openComponent(parent: item.fd, name: sub.name)
             if fd < 0 {
@@ -397,22 +402,25 @@ struct ScanContext: Sendable {
                 continuation.yield(.unreadable(path: sub.path, errno: code))
                 continue
             }
-            queue.pushNew([
-                DirWork(
-                    fd: fd,
-                    entryID: sub.entryID,
-                    path: sub.path,
-                    device: item.device,
-                    volumeIndex: item.volumeIndex,
-                    fsidA: item.fsidA,
-                    fsidB: item.fsidB,
-                    pending: nil,
-                    entryCountHint: sub.entryCount
-                ),
-            ])
+            var child = DirWork(
+                fd: fd,
+                entryID: sub.entryID,
+                path: sub.path,
+                device: item.device,
+                volumeIndex: item.volumeIndex,
+                fsidA: item.fsidA,
+                fsidB: item.fsidB,
+                pending: nil,
+                entryCountHint: sub.entryCount
+            )
+            if inline {
+                try read(&child, bulk: bulk, excludes: excludes, accounted: false)
+            } else {
+                queue.pushNew([child])
+            }
         }
         Darwin.close(item.fd)
-        queue.finishedClosingFD()
+        if accounted { queue.finishedClosingFD() }
     }
 
     private func ingestFTS(_ item: DirWork) throws {
