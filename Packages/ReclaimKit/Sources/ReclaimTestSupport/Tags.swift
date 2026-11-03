@@ -10,6 +10,6 @@ extension Tag {
     @Tag public static var requiresAdmin: Tag
     /// Needs `hdiutil attach` of a disk image inside the fixture tree (mount-boundary tests).
     @Tag public static var requiresAPFSMount: Tag
-    /// Needs a reachable Docker daemon.
-    @Tag public static var requiresDocker: Tag
+    /// Read-only whole-volume scan (Phase 1 validation). Not part of the Phase 2 command surface.
+    @Tag public static var manual: Tag
 }

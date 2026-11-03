@@ -32,7 +32,11 @@ let package = Package(
         // Dependency direction (PLAN.md §2.3):
         // ReclaimCore ← ReclaimSafety ← ReclaimRules ← { ReclaimCLI, ReclaimUI }
         // ReclaimPersistence → ReclaimCore only; ReclaimXPC → nothing.
-        .target(name: "ReclaimCore", swiftSettings: strictSettings),
+        .target(
+            name: "ReclaimCore",
+            swiftSettings: strictSettings,
+            linkerSettings: [.linkedFramework("DiskArbitration")]
+        ),
         .target(name: "ReclaimSafety", dependencies: ["ReclaimCore"], swiftSettings: strictSettings),
         .target(name: "ReclaimPersistence", dependencies: ["ReclaimCore"], swiftSettings: strictSettings),
         .target(name: "ReclaimRules", dependencies: ["ReclaimCore", "ReclaimSafety"], swiftSettings: strictSettings),
@@ -56,6 +60,11 @@ let package = Package(
         .testTarget(
             name: "ReclaimTestSupportTests",
             dependencies: ["ReclaimTestSupport"],
+            swiftSettings: strictSettings
+        ),
+        .testTarget(
+            name: "ReclaimCoreTests",
+            dependencies: ["ReclaimCore", "ReclaimTestSupport"],
             swiftSettings: strictSettings
         ),
         .testTarget(

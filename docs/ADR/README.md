@@ -16,8 +16,11 @@ ADR-012 onwards record decisions PLAN.md was silent on, in the order they were n
 | [ADR-008](ADR-008-no-telemetry.md) | No telemetry | Accepted |
 | [ADR-009](ADR-009-trash-tier-default.md) | Trash tier default, permanent opt-in | Accepted |
 | [ADR-010](ADR-010-menu-bar-in-main-app.md) | Main app hosts the menu bar monitor | Accepted |
-| ADR-011 | APFS clone accounting (reserved; Phase 1, T1-SIZE-CLONE) | Pending |
+| [ADR-011](ADR-011-clone-accounting.md) | APFS clone accounting (`privateReclaimable`) | Accepted (Phase 1) |
 | [ADR-012](ADR-012-test-support-isolation.md) | `ReclaimTestSupport` links Swift Testing and is test-only | Accepted (Phase 0) |
 | [ADR-013](ADR-013-home-layout.md) | `HomeLayout` shape for `FixtureBuilder.home` | Accepted (Phase 0) |
 | [ADR-014](ADR-014-benchmark-scale-gating.md) | T0-BENCH-2M scale gating and CI policy | Accepted (Phase 0) |
 | [ADR-015](ADR-015-hand-written-xcode-project.md) | Hand-written Xcode project driven by xcconfig | Accepted (Phase 0) |
+| [ADR-016](ADR-016-phase1-performance-targets.md) | Phase 1 scan budgets revised from the Phase 0 baseline | Accepted (Phase 1) |
+| [ADR-017](ADR-017-phase1-heavy-test-scale.md) | Phase 1 heavy tests scale like T0-BENCH-2M | Accepted (Phase 1) |
+| [ADR-018](ADR-018-mount-status-firmlinks.md) | Mount-status bit vs firmlinks | Accepted (Phase 1) |
