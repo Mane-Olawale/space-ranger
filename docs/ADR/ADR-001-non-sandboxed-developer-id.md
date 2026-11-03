@@ -1,0 +1,5 @@
+# ADR-001 — Non-sandboxed Developer ID application
+
+**Status:** Accepted (PLAN.md §2.14, §0.3) · **Date:** 2026-11-02
+
+Reclaim ships as a Developer ID-signed, notarized, hardened-runtime app distributed outside the Mac App Store, without the App Sandbox. The product's core requirements — a whole-disk scan under Full Disk Access, `fts`/`getattrlistbulk` traversal of arbitrary user paths, Trash and in-place deletion anywhere in the home directory, and a root `SMAppService` LaunchDaemon for the allowlisted operations in §2.9.5 — are all incompatible with the sandbox's container model and with Mac App Store review. **Alternatives rejected:** a sandboxed App Store build (blocks FDA-wide scanning, the privileged helper, and `fts` over arbitrary paths; security-scoped bookmarks would turn every scan into a folder-picker ritual) and a hybrid App Store app with a separately downloaded helper (two distribution channels, two TCC subjects, and the same review blockers for the scanning app itself).

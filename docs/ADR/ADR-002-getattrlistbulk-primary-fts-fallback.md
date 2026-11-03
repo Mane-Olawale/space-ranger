@@ -1,0 +1,5 @@
+# ADR-002 — `getattrlistbulk(2)` as the primary enumerator, `fts(3)` as the fallback
+
+**Status:** Accepted (PLAN.md §2.14, §2.6) · **Date:** 2026-11-02
+
+The scanner reads directories with `getattrlistbulk(2)` requesting exactly the attributes the index needs (name, object type, times, owner, mode, BSD flags, file ID, directory entry count and mount status, link count, logical/allocated size, and the common-extended private size, clone ID and extended flags), opening every directory with `openat(O_NOFOLLOW)` from a parent descriptor and parsing the packed records by consulting the returned-attributes bitmap. `fts(3)` (`FTS_PHYSICAL | FTS_NOCHDIR | FTS_XDEV`) remains as the fallback for volumes that return `ENOTSUP`/`EINVAL` (HFS+, network, FUSE) and for benchmarking. **Alternatives rejected:** `FileManager.enumerator` (one attribute fetch plus several object allocations per entry, single-threaded — 10–50× slower in the audit's `du` passes) and `readdir` + `lstat` (one syscall per entry with full path lookups). Phase 0 measurements (docs/benchmarks/phase0.json) quantify the actual gap on APFS and feed the Phase 1 scheduler design.
