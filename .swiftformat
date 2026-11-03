@@ -1,0 +1,31 @@
+# SwiftFormat configuration for Reclaim.
+--swiftversion 6.0
+--exclude Packages/ReclaimKit/.build,build,docs,Apps/Reclaim/Reclaim.xcodeproj
+
+# Layout
+--indent 4
+--maxwidth 140
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--trimwhitespace always
+--commas inline
+--semicolons never
+--linebreaks lf
+
+# Style
+--self remove
+--importgrouping testable-last
+--stripunusedargs closure-only
+--ifdef no-indent
+--elseposition same-line
+--guardelse same-line
+--extensionacl on-declarations
+--patternlet hoist
+--shortoptionals always
+--emptybraces no-space
+--header ignore
+
+# Rules we do not want
+--disable wrapMultilineStatementBraces, redundantReturn, andOperator, blankLinesAtStartOfScope

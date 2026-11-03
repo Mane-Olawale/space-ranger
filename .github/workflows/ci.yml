@@ -1,0 +1,102 @@
+# Reclaim CI — PLAN.md §6 Phase 0 exit criterion T0-CI-GREEN:
+# `swift build`, `swift test` and `xcodebuild -scheme Reclaim build` must succeed on macos-15.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PACKAGE_DIR: Packages/ReclaimKit
+
+jobs:
+  build-test:
+    name: Build & test (macos-15)
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode 16.x (falls back to the runner default)
+        run: |
+          newest="$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -n "$newest" ]; then sudo xcode-select -s "$newest"; fi
+          xcodebuild -version
+          swift --version
+
+      - name: Cache SwiftPM dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PACKAGE_DIR }}/.build
+          key: spm-${{ runner.os }}-${{ hashFiles('Packages/ReclaimKit/Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: swift build (debug, warnings are errors)
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: swift build -v 2>&1 | tail -20
+
+      - name: swift test (fixtures on APFS + 1/10-scale benchmark)
+        working-directory: ${{ env.PACKAGE_DIR }}
+        run: swift test --parallel 2>&1 | tail -80
+
+      - name: xcodebuild Reclaim scheme (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild -workspace Reclaim.xcworkspace -scheme Reclaim -configuration Debug \
+            -destination 'platform=macOS' -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build 2>&1 | grep -E "error:|warning:|BUILD" | tail -40
+
+      - name: Verify bundle layout (helper + LaunchDaemon plist)
+        run: |
+          app=build/DerivedData/Build/Products/Debug/Reclaim.app
+          test -x "$app/Contents/MacOS/ReclaimHelper"
+          test -f "$app/Contents/Library/LaunchDaemons/com.olawale.reclaim.helper.plist"
+          plutil -lint "$app/Contents/Library/LaunchDaemons/com.olawale.reclaim.helper.plist"
+
+  lint:
+    name: SwiftLint & SwiftFormat
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install linters
+        run: brew install swiftlint swiftformat
+      - name: SwiftLint (strict)
+        run: swiftlint lint --strict --reporter github-actions-logging
+      - name: SwiftFormat (lint mode)
+        run: swiftformat --lint .
+
+  bench:
+    # Full T0-BENCH-2M (200 k dirs / 2 M files) on the CI runner class. Informational until Phase 1
+    # tightens thresholds (ADR-014); the baseline of record is docs/benchmarks/phase0.json.
+    name: Benchmark 2.2 M entries (informational)
+    runs-on: macos-15
+    timeout-minutes: 60
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select newest Xcode 16.x
+        run: |
+          newest="$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -n "$newest" ]; then sudo xcode-select -s "$newest"; fi
+          xcodebuild -version
+      - name: Run full benchmark
+        run: Scripts/bench.sh --out build/bench/phase0-ci.json
+      - name: Full-scale T0-BENCH-2M assertions
+        working-directory: ${{ env.PACKAGE_DIR }}
+        env:
+          RECLAIM_BENCH_FULL: "1"
+          RECLAIM_BENCH_BIN: ${{ github.workspace }}/Packages/ReclaimKit/.build/release/reclaim-bench
+        run: swift test -c release --filter BenchmarkTests 2>&1 | tail -60
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-${{ github.sha }}
+          path: build/bench/
