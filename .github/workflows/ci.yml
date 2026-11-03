@@ -43,7 +43,14 @@ jobs:
 
       - name: swift test (fixtures on APFS + 1/10-scale benchmark)
         working-directory: ${{ env.PACKAGE_DIR }}
-        run: swift test --parallel 2>&1 | tail -80
+        env:
+          RECLAIM_BENCH_SUMMARY: ${{ github.workspace }}/build/bench-summary.txt
+        run: |
+          mkdir -p "${{ github.workspace }}/build"
+          swift test --parallel 2>&1 | tail -80
+          echo "::group::T0-BENCH-2M summary (1/10 scale, debug)"
+          cat "${{ github.workspace }}/build/bench-summary.txt" || true
+          echo "::endgroup::"
 
       - name: xcodebuild Reclaim scheme (unsigned)
         run: |
@@ -76,7 +83,9 @@ jobs:
 
   bench:
     # Full T0-BENCH-2M (200 k dirs / 2 M files) on the CI runner class. Informational until Phase 1
-    # tightens thresholds (ADR-014); the baseline of record is docs/benchmarks/phase0.json.
+    # tightens thresholds (ADR-014); baselines of record: docs/benchmarks/phase0.json (author's machine)
+    # and docs/benchmarks/phase0-ci-macos15.json (this job). The assertion form is
+    # `RECLAIM_BENCH_FULL=1 swift test -c release --filter BenchmarkTests`, run locally on demand.
     name: Benchmark 2.2 M entries (informational)
     runs-on: macos-15
     timeout-minutes: 60
@@ -89,14 +98,8 @@ jobs:
           newest="$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1 || true)"
           if [ -n "$newest" ]; then sudo xcode-select -s "$newest"; fi
           xcodebuild -version
-      - name: Run full benchmark
+      - name: Run full benchmark (baseline JSON includes meetsPlan against PLAN.md thresholds)
         run: Scripts/bench.sh --out build/bench/phase0-ci.json
-      - name: Full-scale T0-BENCH-2M assertions
-        working-directory: ${{ env.PACKAGE_DIR }}
-        env:
-          RECLAIM_BENCH_FULL: "1"
-          RECLAIM_BENCH_BIN: ${{ github.workspace }}/Packages/ReclaimKit/.build/release/reclaim-bench
-        run: swift test -c release --filter BenchmarkTests 2>&1 | tail -60
       - uses: actions/upload-artifact@v4
         if: always()
         with:

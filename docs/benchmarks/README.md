@@ -1,6 +1,8 @@
 # Benchmarks
 
 `phase0.json` is the Phase 0 baseline required by PLAN.md T0-BENCH-2M, produced by `Scripts/bench.sh`
+on the author's machine; `phase0-ci-macos15.json` is the same run on the GitHub `macos-15` runner class
+(CI run 41633267734), produced by the `bench` workflow job
 (schema `reclaim-bench/baseline/v1`): host description (incl. load averages, `kern.memorystatus_level`,
 `kern.maxvnodes`), fixture generation stats, one entry per walk (`median`/`best` run, all runs, peak RSS via
 `proc_pid_rusage`) and the derived ratios against PLAN.md's thresholds.
@@ -25,6 +27,24 @@ directory), generated in 49.9 s. Conditions were **not** quiet: load average 8�
 
 PLAN.md thresholds: `bulk ≥ 3× fts` → **6.35× (met)**; `bulk ≥ 10× filemanager` → **7.38× (not met)**;
 `bulk ≤ 3.0 s` → **12.1 s (not met)**.
+
+### CI runner class (`macos-15`: VirtualMac2,1, Apple M1 virtual, 3 cores, 7 GB, macOS 15.8.2, quiet, `kern.maxvnodes` 113 713)
+
+| Strategy | Workers | Attributes | Median | Entries/s |
+|----------|---------|------------|-------:|----------:|
+| filemanager | 1 | — | 87.4 s | 25.2 k |
+| fts | 1 | — | 55.1 s | 39.9 k |
+| bulk | 1 | full | 50.9 s | 43.2 k |
+| bulk | 2 | full | 25.7 s | 85.6 k |
+| bulk | 3 (default) | full | **23.9 s** | 91.9 k |
+| bulk | 4 | full | 24.2 s | 91.0 k |
+| bulk | 8 | full | 21.7 s | 101 k |
+| bulk | 3 | standard | 19.6 s | 112 k |
+| bulk | 3 | minimal | 18.7 s | 117 k |
+
+Ratios on the runner: bulk vs fts **2.30×**, bulk vs filemanager **3.65×**, bulk **23.9 s** — none of the
+three PLAN.md thresholds are met on the CI runner class. On this quiet 3-core VM single-threaded bulk is
+~8 % faster than fts and the attribute set matters more (`minimal` is 22 % faster than `full`).
 
 ## What the data says (input to Phase 1)
 

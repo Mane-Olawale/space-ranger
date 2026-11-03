@@ -1,0 +1,864 @@
+{
+  "schema": "reclaim-bench/baseline/v1",
+  "phase": "0",
+  "test": "T0-BENCH-2M",
+  "generatedAt": "2026-11-03T12:35:14Z",
+  "gitCommit": "704955f",
+  "swiftVersion": "swift-driver version: 1.120.5 Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)",
+  "fixture": {
+    "bytesPerFile": 0,
+    "directories": 200000,
+    "entries": 2200000,
+    "entriesPerSecond": 38223.63423329373,
+    "files": 2000000,
+    "generatedAt": "2026-11-03T12:12:26Z",
+    "host": {
+      "activeProcessors": 3,
+      "buildConfiguration": "release",
+      "cpu": "Apple M1 (Virtual)",
+      "loadAverage": [
+        31.05,
+        24.91,
+        11.51
+      ],
+      "maxVnodes": 113713,
+      "memoryBytes": 7516192768,
+      "memoryStatusLevel": 85,
+      "model": "VirtualMac2,1",
+      "osVersion": "Version 15.8.2 (Build 24H232)",
+      "pageSize": 16384
+    },
+    "root": "/private/tmp/rcl-fixture",
+    "schema": "reclaim-bench/fixture/v1",
+    "wallSeconds": 57.556013292,
+    "workers": 3
+  },
+  "host": {
+    "activeProcessors": 3,
+    "buildConfiguration": "release",
+    "cpu": "Apple M1 (Virtual)",
+    "loadAverage": [
+      2.72,
+      2.76,
+      4.27
+    ],
+    "maxVnodes": 113713,
+    "memoryBytes": 7516192768,
+    "memoryStatusLevel": 85,
+    "model": "VirtualMac2,1",
+    "osVersion": "Version 15.8.2 (Build 24H232)",
+    "pageSize": 16384
+  },
+  "walks": [
+    {
+      "strategy": "bulk",
+      "workers": 3,
+      "attributeSet": "minimal",
+      "warmupSeconds": 18.277830625,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 117379.32411758025,
+        "peakRSSBytes": 2720832,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 18.7426535
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 118433.16634983268,
+        "peakRSSBytes": 2901184,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 18.575877584
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 117379.32411758025,
+          "peakRSSBytes": 2720832,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 18.7426535
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 113977.48020191054,
+          "peakRSSBytes": 2737216,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 19.302058583
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 118433.16634983268,
+          "peakRSSBytes": 2901184,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 18.575877584
+        }
+      ]
+    },
+    {
+      "strategy": "bulk",
+      "workers": 3,
+      "attributeSet": "standard",
+      "warmupSeconds": 18.942244292,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 112021.68950183652,
+        "peakRSSBytes": 3245184,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 19.639053917
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 118721.12364221367,
+        "peakRSSBytes": 3081344,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 18.530821917
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 118721.12364221367,
+          "peakRSSBytes": 3081344,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 18.530821917
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 112021.68950183652,
+          "peakRSSBytes": 3245184,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 19.639053917
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 110245.16204480555,
+          "peakRSSBytes": 3294336,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 19.955524208
+        }
+      ]
+    },
+    {
+      "strategy": "bulk",
+      "workers": 1,
+      "attributeSet": "full",
+      "warmupSeconds": 52.961654375,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 43190.692798344615,
+        "peakRSSBytes": 2819136,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 50.9369
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 43880.522333193796,
+        "peakRSSBytes": 2786368,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 50.13613975
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 43880.522333193796,
+          "peakRSSBytes": 2786368,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 50.13613975
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 43190.692798344615,
+          "peakRSSBytes": 2819136,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 50.9369
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 40666.82536585951,
+          "peakRSSBytes": 2835520,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 54.098149541
+        }
+      ]
+    },
+    {
+      "strategy": "bulk",
+      "workers": 2,
+      "attributeSet": "full",
+      "warmupSeconds": 31.168618,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 85647.34800275888,
+        "peakRSSBytes": 2851968,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 25.686726458
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 91156.4450527802,
+        "peakRSSBytes": 2655232,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 24.134333
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 91156.4450527802,
+          "peakRSSBytes": 2655232,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 24.134333
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 85647.34800275888,
+          "peakRSSBytes": 2851968,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 25.686726458
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 76821.61866502743,
+          "peakRSSBytes": 2933888,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 28.637772
+        }
+      ]
+    },
+    {
+      "strategy": "bulk",
+      "workers": 4,
+      "attributeSet": "full",
+      "warmupSeconds": 23.427459541,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 91017.12877501431,
+        "peakRSSBytes": 3360000,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 24.171274458
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 95139.93618636334,
+        "peakRSSBytes": 3425536,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 23.123833042
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 91017.12877501431,
+          "peakRSSBytes": 3360000,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 24.171274458
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 89268.51768759055,
+          "peakRSSBytes": 3392768,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 24.644746625
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 95139.93618636334,
+          "peakRSSBytes": 3425536,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 23.123833042
+        }
+      ]
+    },
+    {
+      "strategy": "bulk",
+      "workers": 8,
+      "attributeSet": "full",
+      "warmupSeconds": 22.357935833,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 101333.98981225937,
+        "peakRSSBytes": 4080896,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 21.710385667
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 101784.60588225513,
+        "peakRSSBytes": 4523264,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 21.614270458
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 98706.44622545503,
+          "peakRSSBytes": 3638528,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 22.288311292
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 101333.98981225937,
+          "peakRSSBytes": 4080896,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 21.710385667
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 101784.60588225513,
+          "peakRSSBytes": 4523264,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 21.614270458
+        }
+      ]
+    },
+    {
+      "strategy": "bulk",
+      "workers": 3,
+      "attributeSet": "full",
+      "warmupSeconds": 23.84797525,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 91909.31619961465,
+        "peakRSSBytes": 3196032,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 23.936637666
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 94895.1910216726,
+        "peakRSSBytes": 3196032,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 23.183471958
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 91881.13414371516,
+          "peakRSSBytes": 3032192,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 23.943979583
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 94895.1910216726,
+          "peakRSSBytes": 3196032,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 23.183471958
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 91909.31619961465,
+          "peakRSSBytes": 3196032,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 23.936637666
+        }
+      ]
+    },
+    {
+      "strategy": "filemanager",
+      "workers": 1,
+      "attributeSet": null,
+      "warmupSeconds": 103.818234584,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 25171.325828368717,
+        "peakRSSBytes": 3097536,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 87.401037792
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 26525.41498712191,
+        "peakRSSBytes": 3113920,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 82.939324458
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 17867.344338490584,
+          "peakRSSBytes": 3064768,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 123.129658125
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 25171.325828368717,
+          "peakRSSBytes": 3097536,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 87.401037792
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 26525.41498712191,
+          "peakRSSBytes": 3113920,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 82.939324458
+        }
+      ]
+    },
+    {
+      "strategy": "fts",
+      "workers": 1,
+      "attributeSet": null,
+      "warmupSeconds": 54.651780333,
+      "median": {
+        "entries": 2200000,
+        "entriesPerSecond": 39905.29243715664,
+        "peakRSSBytes": 2900928,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 55.130531958
+      },
+      "best": {
+        "entries": 2200000,
+        "entriesPerSecond": 41009.63060430917,
+        "peakRSSBytes": 2900928,
+        "stats": {
+          "bytesAllocated": 0,
+          "bytesLogical": 0,
+          "directories": 200000,
+          "entries": 2200000,
+          "errors": 0,
+          "files": 2000000,
+          "others": 0,
+          "symlinks": 0
+        },
+        "wallSeconds": 53.645935542
+      },
+      "runs": [
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 41009.63060430917,
+          "peakRSSBytes": 2900928,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 53.645935542
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 39905.29243715664,
+          "peakRSSBytes": 2900928,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 55.130531958
+        },
+        {
+          "entries": 2200000,
+          "entriesPerSecond": 38338.5520561851,
+          "peakRSSBytes": 2900928,
+          "stats": {
+            "bytesAllocated": 0,
+            "bytesLogical": 0,
+            "directories": 200000,
+            "entries": 2200000,
+            "errors": 0,
+            "files": 2000000,
+            "others": 0,
+            "symlinks": 0
+          },
+          "wallSeconds": 57.383492125
+        }
+      ]
+    }
+  ],
+  "ratios": {
+    "bulkWorkers": 3,
+    "bulkMedianSeconds": 23.936637666,
+    "ftsMedianSeconds": 55.130531958,
+    "fileManagerMedianSeconds": 87.401037792,
+    "bulkVsFTS": 2.3031861336276283,
+    "bulkVsFileManager": 3.65134982663609,
+    "planThresholds": {
+      "bulkVsFTS": 3.0,
+      "bulkVsFileManager": 10.0,
+      "bulkMaxSeconds": 3.0
+    },
+    "meetsPlan": {
+      "bulkVsFTS": false,
+      "bulkVsFileManager": false,
+      "bulkMaxSeconds": false
+    }
+  }
+}
