@@ -48,6 +48,7 @@ line_length:
   error: 180
   ignores_comments: true
   ignores_urls: true
+  ignores_interpolated_strings: true   # assertion/summary messages in tests
 
 identifier_name:
   min_length: 1
