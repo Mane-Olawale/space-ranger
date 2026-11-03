@@ -225,21 +225,7 @@ final class Materializer {
 
         case let .clone(name, of):
             try validate(name: name)
-            let source = resolve(of, relativeTo: parentPath)
-            guard let index = stateIndex[source] else {
-                throw FixtureError.invalidSpec("clone \(name): source \(of) is not a file created by this fixture")
-            }
-            try FixtureFS.clone(source: source, parent: parentFD, name: name)
-            let state = states[index]
-            // `du` counts the clone in full; the kernel reports zero private bytes for every member of an
-            // identical clone family, so the source's private contribution is withdrawn.
-            logical += state.logical
-            allocated += state.allocated
-            privateBytes -= state.privateCounted
-            states[index].privateCounted = 0
-            states.append(FileState(logical: state.logical, allocated: state.allocated, privateCounted: 0))
-            stateIndex[parentPath + "/" + name] = states.count - 1
-            entryCount += 1
+            try buildClone(name: name, of: of, in: parentFD, parentPath: parentPath)
 
         case let .hardlink(name, of):
             try validate(name: name)
@@ -282,35 +268,70 @@ final class Materializer {
 
         case let .gitRepo(name, dirty, children):
             try validate(name: name)
-            let repoPath = parentPath + "/" + name
-            try build(.dir(name: name, children: children), in: parentFD, parentPath: parentPath)
-            try GitRunner.run(["init", "-q", "-b", "main"], in: repoPath)
-            try GitRunner.run(["add", "-A"], in: repoPath)
-            try GitRunner.run(["commit", "-q", "--allow-empty", "-m", "fixture"], in: repoPath)
-            if dirty {
-                let fd = try FixtureFS.openDirectory(repoPath)
-                defer { close(fd) }
-                try build(.file(name: "UNCOMMITTED.txt", logicalBytes: 64), in: fd, parentPath: repoPath)
-            }
-            let git = try DiskUsage.measure(at: repoPath + "/.git")
-            logical += Int(git.logical)
-            allocated += Int(git.allocated)
-            privateBytes += Int(git.privateBytes)
-            entryCount += git.entryCount + 1 // + the `.git` directory itself
+            try buildGitRepo(name: name, dirty: dirty, children: children, in: parentFD, parentPath: parentPath)
 
         case let .nodeModules(name, packages, bytesEach):
             try validate(name: name)
-            var children: [FixtureSpec.Node] = []
-            children.reserveCapacity(packages)
-            for i in 0..<packages {
-                let manifest = Materializer.packageManifest(index: i)
-                let scriptBytes = max(0, bytesEach - manifest.utf8.count)
-                children.append(.dir(name: "pkg-\(i)", children: [
-                    .file(name: "package.json", logicalBytes: manifest.utf8.count),
-                    .file(name: "index.js", logicalBytes: scriptBytes),
-                ]))
-            }
-            try build(.dir(name: name, children: children), in: parentFD, parentPath: parentPath)
+            try build(
+                .dir(name: name, children: Materializer.nodeModulesChildren(packages: packages, bytesEach: bytesEach)),
+                in: parentFD,
+                parentPath: parentPath
+            )
+        }
+    }
+
+    /// `clonefile(2)` of a file created earlier in this fixture. `du` counts the clone in full; the kernel
+    /// reports zero private bytes for every member of an identical clone family, so the source's private
+    /// contribution is withdrawn.
+    private func buildClone(name: String, of reference: String, in parentFD: Int32, parentPath: String) throws {
+        let source = resolve(reference, relativeTo: parentPath)
+        guard let index = stateIndex[source] else {
+            throw FixtureError.invalidSpec("clone \(name): source \(reference) is not a file created by this fixture")
+        }
+        try FixtureFS.clone(source: source, parent: parentFD, name: name)
+        let state = states[index]
+        logical += state.logical
+        allocated += state.allocated
+        privateBytes -= state.privateCounted
+        states[index].privateCounted = 0
+        states.append(FileState(logical: state.logical, allocated: state.allocated, privateCounted: 0))
+        stateIndex[parentPath + "/" + name] = states.count - 1
+        entryCount += 1
+    }
+
+    /// `git init` + one commit of `children`; the generated `.git` subtree is measured, not predicted.
+    private func buildGitRepo(
+        name: String,
+        dirty: Bool,
+        children: [FixtureSpec.Node],
+        in parentFD: Int32,
+        parentPath: String
+    ) throws {
+        let repoPath = parentPath + "/" + name
+        try build(.dir(name: name, children: children), in: parentFD, parentPath: parentPath)
+        try GitRunner.run(["init", "-q", "-b", "main"], in: repoPath)
+        try GitRunner.run(["add", "-A"], in: repoPath)
+        try GitRunner.run(["commit", "-q", "--allow-empty", "-m", "fixture"], in: repoPath)
+        if dirty {
+            let fd = try FixtureFS.openDirectory(repoPath)
+            defer { close(fd) }
+            try build(.file(name: "UNCOMMITTED.txt", logicalBytes: 64), in: fd, parentPath: repoPath)
+        }
+        let git = try DiskUsage.measure(at: repoPath + "/.git")
+        logical += Int(git.logical)
+        allocated += Int(git.allocated)
+        privateBytes += Int(git.privateBytes)
+        entryCount += git.entryCount + 1 // + the `.git` directory itself
+    }
+
+    /// `packages` package directories, each `package.json` + `index.js` totalling `bytesEach` logical bytes.
+    static func nodeModulesChildren(packages: Int, bytesEach: Int) -> [FixtureSpec.Node] {
+        (0..<packages).map { index in
+            let manifest = packageManifest(index: index)
+            return .dir(name: "pkg-\(index)", children: [
+                .file(name: "package.json", logicalBytes: manifest.utf8.count),
+                .file(name: "index.js", logicalBytes: max(0, bytesEach - manifest.utf8.count)),
+            ])
         }
     }
 
