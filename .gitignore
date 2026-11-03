@@ -1,0 +1,42 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xcresult
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/ReclaimKit/.build/
+Packages/ReclaimKit/.swiftpm/
+/.index-build/
+Package.pins
+
+# Benchmark fixtures / local artifacts (never inside the repo, but just in case)
+/fixtures/
+*.rclsnap
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local agent/tooling state
+.claude/
